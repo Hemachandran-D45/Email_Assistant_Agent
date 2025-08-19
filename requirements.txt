@@ -1,0 +1,7 @@
+langgraph
+langchain
+chromadb
+mailslurp-client
+python-dotenv
+langchain-groq
+streamlit
