@@ -1,29 +1,34 @@
+# agents/email_sender.py
 import os
-from mailslurp_client import Configuration, ApiClient, SendEmailOptions, InboxControllerApi, EmailControllerApi
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class EmailSenderAgent:
     def __init__(self):
-        api_key = os.getenv("MAILSLURP_API_KEY")
-        if not api_key:
-            raise ValueError("❌ MAILSLURP_API_KEY is missing!")
+        self.user = os.getenv("SMTP_USER")
+        self.password = os.getenv("SMTP_PASS")
+        self.smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+        self.smtp_port = int(os.getenv("SMTP_PORT", 465))  # SSL port
 
-        configuration = Configuration()
-        configuration.api_key["x-api-key"] = api_key
-
-        self.client = ApiClient(configuration)
-        self.inbox_api = InboxControllerApi(self.client)
-        self.email_api = EmailControllerApi(self.client)
-
-        self.inbox_id = os.getenv("MAILSLURP_INBOX_ID")
-        if not self.inbox_id:
-            inbox = self.inbox_api.create_inbox()
-            self.inbox_id = inbox.id
-            print(f"📬 New inbox created: {self.inbox_id}")
+        if not self.user or not self.password:
+            raise ValueError("❌ Missing SMTP_USER or SMTP_PASS in .env")
 
     def send_email(self, to_email: str, subject: str, body: str):
-        send_options = SendEmailOptions(to=[to_email], subject=subject, body=body)
-        self.email_api.send_email(self.inbox_id, send_options)
-        print(f"✅ Email sent to {to_email}")
+        msg = MIMEMultipart()
+        msg["From"] = self.user
+        msg["To"] = to_email
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain"))
+
+        try:
+            with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as server:
+                server.login(self.user, self.password)
+                server.sendmail(self.user, to_email, msg.as_string())
+            print(f"✅ Email sent to {to_email}")
+        except Exception as e:
+            print(f"❌ Failed to send email: {e}")
+            raise

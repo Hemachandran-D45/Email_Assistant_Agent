@@ -1,7 +1,11 @@
 langgraph
 langchain
+langchain-community
+langchain-chroma
+sentence-transformers
 chromadb
+groq
 mailslurp-client
-python-dotenv
-langchain-groq
 streamlit
+python-dotenv
+pydantic

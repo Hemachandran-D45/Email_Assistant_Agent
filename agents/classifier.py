@@ -1,27 +1,40 @@
-from langchain.prompts import PromptTemplate
-from utils.llm_loader import llm
+import json
+from utils.llm_loader import load_llm
+from utils.types import Classification
 
 class ClassifierAgent:
     def __init__(self):
-        self.prompt = PromptTemplate(
-            input_variables=["email_body"],
-            template="""
-Classify the following email into a category and tone:
+        self.llm = load_llm()
+
+    def classify(self, email: dict) -> Classification:
+        prompt = f"""
+You are an email triage assistant. Return ONLY JSON with keys: category, tone.
+- category must be one of: ["spam", "urgent", "quick_reply", "normal"]
+- tone should be a single word such as: "angry", "neutral", "happy", "frustrated", "formal", "informal"
 
 Email:
-{email_body}
+From: {email['sender']}
+Subject: {email['subject']}
+Body: {email['body']}
+"""
+        resp = self.llm.invoke(prompt)
+        text = resp.content if hasattr(resp, "content") else str(resp)
 
-Return JSON with keys: category, tone
-            """
-        )
-
-    def classify(self, email_body: str):
-        response = llm.predict(self.prompt.format(email_body=email_body))
-
-        import json
         try:
-            parsed = json.loads(response)
-        except:
-            parsed = {"category": "unknown", "tone": "neutral"}
+            data = json.loads(text)
+            category = str(data.get("category", "normal")).lower()
+            tone = str(data.get("tone", "neutral")).lower()
+        except Exception:
+            # naive fallback
+            body = email["body"].lower()
+            if "unsubscribe" in body or "lottery" in body or "win money" in body:
+                category = "spam"
+            elif "asap" in body or "urgent" in body or "immediately" in body:
+                category = "urgent"
+            elif len(body) < 220:
+                category = "quick_reply"
+            else:
+                category = "normal"
+            tone = "neutral"
 
-        return parsed
+        return {"category": category, "tone": tone, "confidence": 0.7}

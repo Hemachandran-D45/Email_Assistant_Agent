@@ -1,46 +1,57 @@
-from langchain.prompts import PromptTemplate
-from utils.llm_loader import llm
-from utils.chroma_db import get_email_collection
+from utils.llm_loader import load_llm
+from utils.chroma_db import similarity_search
+from agents.thread_detector import ThreadDetector
 
 class DraftGeneratorAgent:
     def __init__(self):
-        self.collection = get_email_collection()
-        self.prompt = PromptTemplate(
-            input_variables=["email_body", "history"],
-            template="""
-You are an email assistant. Write a **polite and concise reply** to the email below.
-If there is relevant history, include proper context.
+        self.llm = load_llm()
+        self.thread_detector = ThreadDetector()
 
-Email:
-{email_body}
+    def generate_reply(self, email: dict, classification: dict):
+        # Decide thread (also stores this email)
+        thread_id = self.thread_detector.detect_or_create_thread(email)
 
-Conversation History:
-{history}
+        # Prefer thread-level context
+        hits = similarity_search(email["body"], k=3, _filter={"thread_id": thread_id})
 
-Reply in a helpful and professional tone.
-Also provide a confidence score from 1-10 about how certain you are.
+        # Fallback to sender-wide if no thread context
+        if not hits:
+            hits = similarity_search(email["body"], k=3, _filter={"sender": email["sender"]})
 
-Format:
-REPLY: <your reply>
-CONFIDENCE: <number>
-            """
-        )
+        context = "\n\n".join([d.page_content for d in hits]) if hits else "No relevant history."
 
-    def generate_draft(self, email, thread_id):
-        results = self.collection.query(query_texts=[email["body"]], n_results=3)
-        history = "\n".join(doc for docs in results.get("documents", []) for doc in docs) if results else "No history."
+        prompt = f"""
+You are an AI email assistant. Draft a concise, polite, professional reply.
 
-        formatted_prompt = self.prompt.format(email_body=email["body"], history=history)
-        response = llm.predict(formatted_prompt)
+Incoming Email:
+From: {email['sender']}
+Subject: {email['subject']}
+Body: {email['body']}
 
-        reply_text, confidence_score = "", 5
-        for line in response.split("\n"):
-            if line.startswith("REPLY:"):
-                reply_text = line.replace("REPLY:", "").strip()
-            if line.startswith("CONFIDENCE:"):
-                try:
-                    confidence_score = int(line.replace("CONFIDENCE:", "").strip())
-                except:
-                    confidence_score = 5
+Classification:
+- Category: {classification.get('category','normal')}
+- Tone: {classification.get('tone','neutral')}
 
-        return {"reply": reply_text, "confidence": confidence_score}
+Relevant Past Emails (context):
+{context}
+
+Constraints:
+- Be concise (5-8 sentences).
+- If asking for info, use a short checklist.
+- Avoid generic fluff; be specific and helpful.
+
+Reply (only the email body, no headers or signatures):
+"""
+        resp = self.llm.invoke(prompt)
+        reply = resp.content if hasattr(resp, "content") else str(resp)
+
+        confidence = 8 if hits else 6
+        if classification.get("category") == "urgent":
+            confidence = max(confidence - 1, 5)
+
+        return {
+            "reply": reply.strip(),
+            "confidence": confidence,
+            "history_hits": len(hits) if hits else 0,
+            "thread_id": thread_id,
+        }

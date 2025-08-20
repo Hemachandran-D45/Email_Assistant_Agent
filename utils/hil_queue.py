@@ -1,61 +1,56 @@
-# utils/hil_queue.py
-import json
-import os
-import uuid
-from typing import Dict, List, Any
+import os, json, uuid
 
-HIL_FILE = "hil_pending.json"
+QUEUE_FILE = os.path.join(os.getcwd(), "hil_queue.json")
 
-def _load() -> List[Dict[str, Any]]:
-    if not os.path.exists(HIL_FILE):
+def _load():
+    if not os.path.exists(QUEUE_FILE):
         return []
-    with open(HIL_FILE, "r", encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except Exception:
-            return []
+    with open(QUEUE_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def _save(data: List[Dict[str, Any]]) -> None:
-    with open(HIL_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+def _save(items):
+    with open(QUEUE_FILE, "w", encoding="utf-8") as f:
+        json.dump(items, f, ensure_ascii=False, indent=2)
 
-def enqueue(email: Dict[str, Any], thread_id: str, draft: Dict[str, Any]) -> str:
-    """Add a pending review item to the queue and return its id."""
-    data = _load()
-    item_id = str(uuid.uuid4())
-    data.append({
-        "id": item_id,
-        "status": "pending",        # pending | approved | rejected | sent
-        "email": email,             # {id, sender, subject, body}
-        "thread_id": thread_id,
-        "draft": draft,             # {reply, confidence}
-        "history": {},              # reserved for future
-    })
-    _save(data)
-    return item_id
+def enqueue(email: dict, draft: dict, thread_id: str):
+    items = _load()
+    item = {"id": str(uuid.uuid4()), "email": email, "draft": draft, "thread_id": thread_id, "status": "pending"}
+    items.append(item)
+    _save(items)
+    return item["id"]
 
-def all_items() -> List[Dict[str, Any]]:
+def all_items():
     return _load()
 
 def update_item(item_id: str, **fields):
-    data = _load()
-    for it in data:
+    items = _load()
+    for it in items:
         if it["id"] == item_id:
             it.update(fields)
-            break
-    _save(data)
+            _save(items)
+            return True
+    return False
 
-def replace_draft(item_id: str, reply: str, confidence: int | None = None):
-    data = _load()
-    for it in data:
+def get_item(item_id: str):
+    for it in _load():
         if it["id"] == item_id:
-            it["draft"]["reply"] = reply
-            if confidence is not None:
-                it["draft"]["confidence"] = confidence
+            return it
+    return None
+
+def replace_draft(item_id: str, new_text: str):
+    it = get_item(item_id)
+    if not it:
+        return False
+    it["draft"]["reply"] = new_text
+    items = _load()
+    for i, obj in enumerate(items):
+        if obj["id"] == item_id:
+            items[i] = it
             break
-    _save(data)
+    _save(items)
+    return True
 
 def remove_item(item_id: str):
-    data = _load()
-    data = [it for it in data if it["id"] != item_id]
-    _save(data)
+    items = _load()
+    items = [it for it in items if it["id"] != item_id]
+    _save(items)

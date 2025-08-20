@@ -1,27 +1,39 @@
+# utils/llm_loader.py
 import os
-from dotenv import load_dotenv
+import time
+import httpx
 from langchain_groq import ChatGroq
-# from langchain_google_genai import ChatGoogleGenerativeAI
-
-# Load .env
-load_dotenv()
 
 def load_llm():
-    provider = os.getenv("LLM_PROVIDER", "groq").lower()  # default to Groq
-    
-    if provider == "groq":
-        return ChatGroq(
-            model=os.getenv("GROQ_MODEL", "mixtral-8x7b-32768"),
-            api_key=os.getenv("GROQ_API_KEY"),
-            temperature=0.2
-        )
-    
-    # elif provider == "gemini":
-    #     return ChatGoogleGenerativeAI(
-    #         model=os.getenv("GEMINI_MODEL", "gemini-pro"),
-    #         google_api_key=os.getenv("GEMINI_API_KEY"),
-    #         temperature=0.2
-    #     )
-    
-    else:
-        raise ValueError(f"Unsupported LLM provider: {provider}")
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("❌ GROQ_API_KEY not set in environment")
+
+    # Disable SSL verification (⚠️ only for local testing)
+    insecure_client = httpx.Client(verify=False)
+
+    llm = ChatGroq(
+        api_key=api_key,
+        model="llama-3.3-70b-versatile",  # or your preferred Groq model
+        temperature=0.2,
+        max_tokens=1000,
+        http_client=insecure_client,   # 👈 ensure we use same insecure client
+    )
+
+    # wrap with retry
+    class SafeLLM:
+        def __init__(self, llm):
+            self.llm = llm
+
+        def invoke(self, prompt, retries=3, delay=2):
+            for attempt in range(retries):
+                try:
+                    return self.llm.invoke(prompt)
+                except Exception as e:
+                    if attempt < retries - 1:
+                        print(f"⚠️ Groq call failed: {e}, retrying in {delay}s...")
+                        time.sleep(delay)
+                    else:
+                        raise
+
+    return SafeLLM(llm)
