@@ -1,35 +1,52 @@
-import os
-from dotenv import load_dotenv
-from mailslurp_client import Configuration, ApiClient, InboxControllerApi, WaitForControllerApi
+import imaplib
+import email
+from email.header import decode_header
+import time
+from typing import Optional, Dict
 
-load_dotenv()
+class GmailListener:
+    def __init__(self, user: str, password: str):
+        self.user = user
+        self.password = password
+        self.imap = None
 
-class EmailListenerAgent:
-    def __init__(self):
-        api_key = os.getenv("MAILSLURP_API_KEY")
-        if not api_key:
-            raise ValueError("❌ MAILSLURP_API_KEY missing in .env")
+    def connect(self):
+        self.imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        self.imap.login(self.user, self.password)
 
-        cfg = Configuration()
-        cfg.api_key["x-api-key"] = api_key
+    def wait_for_email(self, timeout: int = 60) -> Optional[Dict]:
+        """Waits for a new unseen email for up to `timeout` seconds."""
+        self.connect()
+        self.imap.select("inbox")
 
-        self.client = ApiClient(cfg)
-        self.inbox_api = InboxControllerApi(self.client)
-        self.wait_api = WaitForControllerApi(self.client)
+        start = time.time()
+        while time.time() - start < timeout:
+            status, messages = self.imap.search(None, '(UNSEEN)')
+            if status == "OK":
+                ids = messages[0].split()
+                if ids:
+                    latest_id = ids[-1]
+                    _, msg_data = self.imap.fetch(latest_id, "(RFC822)")
+                    raw_email = msg_data[0][1]
+                    msg = email.message_from_bytes(raw_email)
 
-        self.inbox_id = os.getenv("MAILSLURP_INBOX_ID")
-        if not self.inbox_id:
-            inbox = self.inbox_api.create_inbox()
-            self.inbox_id = inbox.id
-            print(f"📬 New MailSlurp inbox created: {self.inbox_id}")
+                    subject, encoding = decode_header(msg["Subject"])[0]
+                    if isinstance(subject, bytes):
+                        subject = subject.decode(encoding or "utf-8", errors="ignore")
 
-    def wait_for_email(self, timeout=500):
-        email = self.wait_api.wait_for_latest_email(
-            inbox_id=self.inbox_id, timeout=timeout * 1000, unread_only=True
-        )
-        return {
-            "id": email.id,
-            "sender": email._from,
-            "subject": email.subject or "",
-            "body": email.body or "",
-        }
+                    body = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain":
+                                body = part.get_payload(decode=True).decode(errors="ignore")
+                                break
+                    else:
+                        body = msg.get_payload(decode=True).decode(errors="ignore")
+
+                    return {
+                        "sender": msg["From"],
+                        "subject": subject,
+                        "body": body,
+                    }
+            time.sleep(5)
+        return None

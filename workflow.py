@@ -1,22 +1,27 @@
 # workflow.py
+import os
 from langgraph.graph import StateGraph, END
 from utils.types import State
-from agents.email_listener import EmailListenerAgent
+from agents.email_listener import GmailListener
 from agents.classifier import ClassifierAgent
 from agents.draft_generator import DraftGeneratorAgent
-from agents.email_sender import EmailSenderAgent
+from agents.email_sender import GmailSender
 from utils.hil_queue import enqueue
 from utils.logger import log_classification, log_draft, log_send, log_hil_queued
 
 CONFIDENCE_THRESHOLD = 9  # route to auto-send if >= 9
+gmail_user = os.getenv("GMAIL_USER")
+gmail_pass = os.getenv("GMAIL_PASS")
+
 
 def build_workflow():
     sg = StateGraph(State)
 
-    listener = EmailListenerAgent()
+    listener = GmailListener(gmail_user, gmail_pass)
+    sender = GmailSender(gmail_user, gmail_pass)
     classifier = ClassifierAgent()
     drafter = DraftGeneratorAgent()
-    sender = EmailSenderAgent()
+
 
     def listen_node(state: State) -> State:
         email = listener.wait_for_email(timeout=60)
