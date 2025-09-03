@@ -9,3 +9,4 @@ mailslurp-client
 streamlit
 python-dotenv
 pydantic
+ipython

@@ -1,5 +1,5 @@
-# workflow.py
 import os
+from IPython.display import display,Image
 from langgraph.graph import StateGraph, END
 from utils.types import State
 from agents.email_listener import GmailListener
@@ -15,8 +15,8 @@ gmail_pass = os.getenv("GMAIL_PASS")
 
 
 def build_workflow():
+    
     sg = StateGraph(State)
-
     listener = GmailListener(gmail_user, gmail_pass)
     sender = GmailSender(gmail_user, gmail_pass)
     classifier = ClassifierAgent()
@@ -66,3 +66,9 @@ def build_workflow():
     sg.add_edge("decide", END)
 
     return sg.compile()
+graph_builder = build_workflow()
+
+
+
+display(Image(graph_builder.get_graph().draw_mermaid_png()))
+
