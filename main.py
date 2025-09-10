@@ -1,4 +1,3 @@
-# main.py
 from workflow import build_workflow
 
 if __name__ == "__main__":

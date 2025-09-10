@@ -4,14 +4,14 @@ from email.header import decode_header
 import time
 from typing import Optional, Dict
 
-class GmailListener:
+class ZohoListener:
     def __init__(self, user: str, password: str):
         self.user = user
         self.password = password
         self.imap = None
 
     def connect(self):
-        self.imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        self.imap = imaplib.IMAP4_SSL("imap.zoho.com")
         self.imap.login(self.user, self.password)
 
     def wait_for_email(self, timeout: int = 60) -> Optional[Dict]:
