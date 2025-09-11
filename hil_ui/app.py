@@ -1,11 +1,14 @@
-# hil_ui/app.py
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from dotenv import load_dotenv
+load_dotenv()
 
 import streamlit as st
 from utils.hil_queue import all_items, update_item, replace_draft
-from agents.email_sender import EmailSenderAgent
+from agents.email_sender import ZohoSender
 from utils.logger import log_send
+zoho_user = os.getenv("ZOHO_USER")
+zoho_pass = os.getenv("ZOHO_PASS")
 
 # ---------------------------
 # Streamlit Page Config
@@ -18,7 +21,7 @@ st.title("📩 Human-in-the-Loop Review")
 # ---------------------------
 @st.cache_resource
 def get_sender():
-    return EmailSenderAgent()
+    return ZohoSender(zoho_user, zoho_pass)
 
 sender = get_sender()
 
@@ -79,10 +82,10 @@ for it in items:
     if c4.button("📤 Send now", key=f"send_{it['id']}"):
         try:
             sender.send_email(
-                to_email=email.get("sender", ""),
+                to=email.get("sender", ""),
                 subject=f"Re: {email.get('subject','(no subject)')}",
-                body=edited,
-            )
+                body=edited
+                )
             update_item(it["id"], status="sent")
             log_send(
                 email_id=email.get("id", "?"),

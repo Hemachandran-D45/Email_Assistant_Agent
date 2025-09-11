@@ -15,7 +15,6 @@ class ZohoSender:
 
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP("smtp.zoho.com", 587) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL("smtp.zoho.in", 465) as server:
             server.login(self.user, self.password)
             server.sendmail(self.user, to, msg.as_string())

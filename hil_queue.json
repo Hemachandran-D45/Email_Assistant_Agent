@@ -15,5 +15,22 @@
     },
     "thread_id": "4cf96890-2c6f-4e1a-b850-64834baa4d81",
     "status": "approved"
+  },
+  {
+    "id": "1c096fbe-0e09-485a-9950-e637d874f6a0",
+    "email": {
+      "id": "3",
+      "sender": "hemachandrand45@gmail.com",
+      "subject": "Leave Request for Next Week",
+      "body": "Hi Team,\r\n\r\nI would like to apply for leave from 10th to 12th September due to personal\r\nreasons.\r\nPlease let me know if you need any additional details.\r\n\r\nThanks,\r\nRamachandran D\r\n"
+    },
+    "draft": {
+      "reply": "Dear Ramachandran,\n\nThank you for your leave request from 10th to 12th September. We have received your application and are reviewing it. To ensure a smooth process, could you please confirm the following:\n* Will you be available by email during your leave period?\n* Have you made arrangements for your tasks to be covered during your absence?\n\nWe will get back to you soon with an update on your leave request. If you have any questions, please don't hesitate to reach out.\n\nBest regards,",
+      "confidence": 8,
+      "history_hits": 1,
+      "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f"
+    },
+    "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f",
+    "status": "approved"
   }
 ]

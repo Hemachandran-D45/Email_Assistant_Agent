@@ -3,15 +3,22 @@ import email
 from email.header import decode_header
 import time
 from typing import Optional, Dict
+from email.utils import parseaddr
+
 
 class ZohoListener:
     def __init__(self, user: str, password: str):
-        self.user = user
-        self.password = password
+        self.user = user.strip() if user else None
+        self.password = password.strip() if password else None
         self.imap = None
 
     def connect(self):
-        self.imap = imaplib.IMAP4_SSL("imap.zoho.com")
+        print(f"📥 Connecting to Zoho IMAP as: {self.user}")  # Debug (email only, not password)
+        if not self.user or not self.password:
+            raise ValueError("❌ Missing Zoho email or password")
+        
+        # Explicit host + port
+        self.imap = imaplib.IMAP4_SSL("imap.zoho.in", 993)
         self.imap.login(self.user, self.password)
 
     def wait_for_email(self, timeout: int = 60) -> Optional[Dict]:
@@ -43,8 +50,12 @@ class ZohoListener:
                     else:
                         body = msg.get_payload(decode=True).decode(errors="ignore")
 
+                    # Extract only the email address from "Name <email@domain.com>"
+                    _, sender_email = parseaddr(msg["From"])
+
                     return {
-                        "sender": msg["From"],
+                        "id": latest_id.decode() if isinstance(latest_id, bytes) else str(latest_id),
+                        "sender": sender_email,
                         "subject": subject,
                         "body": body,
                     }
