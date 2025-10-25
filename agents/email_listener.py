@@ -13,9 +13,9 @@ class ZohoListener:
         self.imap = None
 
     def connect(self):
-        print(f"📥 Connecting to Zoho IMAP as: {self.user}")  # Debug (email only, not password)
+        print(f"Connecting to Zoho IMAP as: {self.user}")  # Debug (email only, not password)
         if not self.user or not self.password:
-            raise ValueError("❌ Missing Zoho email or password")
+            raise ValueError(" Missing Zoho email or password")
         
         # Explicit host + port
         self.imap = imaplib.IMAP4_SSL("imap.zoho.in", 993)
@@ -50,7 +50,7 @@ class ZohoListener:
                     else:
                         body = msg.get_payload(decode=True).decode(errors="ignore")
 
-                    # Extract only the email address from "Name <email@domain.com>"
+                
                     _, sender_email = parseaddr(msg["From"])
 
                     return {

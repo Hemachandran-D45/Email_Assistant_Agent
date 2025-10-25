@@ -32,5 +32,73 @@
     },
     "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f",
     "status": "approved"
+  },
+  {
+    "id": "bb362d87-790e-42fb-8012-c4246fb12805",
+    "email": {
+      "id": "4",
+      "sender": "hemachandrand45@gmail.com",
+      "subject": "Leave Request - 2 Days",
+      "body": "Hi Team,\r\n\r\nI would like to apply for leave on September 18th and 19th due to personal\r\nreasons.\r\nPlease let me know if further details are needed.\r\n\r\nThanks,\r\nJohn Doe\r\n"
+    },
+    "draft": {
+      "reply": "Dear John,\n\nThank you for your leave request for September 18th and 19th. We have received your application and will review it promptly. To ensure a smooth process, could you please confirm the following:\n* Will you be available by email during your leave if anything urgent comes up?\n* Have you made arrangements for your tasks to be covered during your absence?\n\nWe will get back to you soon with an update on your request.\n\nBest regards,\n[Your Name]",
+      "confidence": 8,
+      "history_hits": 2,
+      "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f"
+    },
+    "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f",
+    "status": "sent"
+  },
+  {
+    "id": "cc37c35a-a5db-4261-bb0c-ce05708c4f7c",
+    "email": {
+      "id": "6",
+      "sender": "bajayaseelan22@gmail.com",
+      "subject": "Update",
+      "body": "HI Hemachandran,\r\n\r\nProvide me the weather report in Chennai, Tamilnadu\r\n"
+    },
+    "draft": {
+      "reply": "Hi Bajayaseelan,\n\nI'd be happy to provide you with the current weather report in Chennai, Tamilnadu. As of now, I don't have real-time access to current weather conditions. However, I can suggest some ways for you to get the latest update. You can check online weather websites such as AccuWeather or the Indian Meteorological Department's official website. Alternatively, you can also check mobile apps like Dark Sky or Weather Forecast. If you need any specific information, please let me know:\n* Current temperature\n* Forecast for the next 24 hours\n* Any weather alerts\n\nLet me know if there's anything else I can help you with.",
+      "confidence": 8,
+      "history_hits": 1,
+      "thread_id": "020e21c1-dd63-44e1-982d-f22ba77146cf"
+    },
+    "thread_id": "020e21c1-dd63-44e1-982d-f22ba77146cf",
+    "status": "sent"
+  },
+  {
+    "id": "d95e4998-0a88-4eef-ab97-af05fc9549ea",
+    "email": {
+      "id": "4",
+      "sender": "hemachandrand45@gmail.com",
+      "subject": "Leave Request - 2 Days",
+      "body": "Hi Team,\r\n\r\nI would like to apply for leave on September 18th and 19th due to personal\r\nreasons.\r\nPlease let me know if further details are needed.\r\n\r\nThanks,\r\nJohn Doe\r\n"
+    },
+    "draft": {
+      "reply": "Dear John,\n\nThank you for your leave request for September 18th and 19th. We have received your application and are reviewing it. To ensure a smooth process, could you please confirm the following:\n* Have you made arrangements for your tasks to be covered during your absence?\n* Are there any urgent matters that need attention before you leave?\n\nWe will get back to you soon with an update on your request. If you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards,\nTeam",
+      "confidence": 8,
+      "history_hits": 3,
+      "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f"
+    },
+    "thread_id": "1c25db0f-aa99-4a3f-b945-60071ecc534f",
+    "status": "pending"
+  },
+  {
+    "id": "04a4a6c6-db4d-4c30-886f-f92868cc09fd",
+    "email": {
+      "id": "7",
+      "sender": "bajayaseelan22@gmail.com",
+      "subject": "Re: Update",
+      "body": "Get me the links for the this\r\n\r\nOn Thu, Sep 25, 2025 at 1:09 AM <hemachandrand45@zohomail.in> wrote:\r\n\r\n> Hi Bajayaseelan,\r\n>\r\n> I'd be happy to provide you with the current weather report in Chennai,\r\n> Tamilnadu. As of now, I don't have real-time access to current weather\r\n> conditions. However, I can suggest some ways for you to get the latest\r\n> update. You can check online weather websites such as AccuWeather or the\r\n> Indian Meteorological Department's official website. Alternatively, you can\r\n> also check mobile apps like Dark Sky or Weather Forecast. If you need any\r\n> specific information, please let me know:\r\n> * Current temperature\r\n> * Forecast for the next 24 hours\r\n> * Any weather alerts\r\n>\r\n> Let me know if there's anything else I can help you with.\r\n"
+    },
+    "draft": {
+      "reply": "I'd be happy to provide you with the links to check the current weather report in Chennai, Tamilnadu. As mentioned earlier, you can visit online weather websites such as AccuWeather (https://www.accuweather.com) or the Indian Meteorological Department's official website (https://mausam.imd.gov.in). Alternatively, you can also check mobile apps like Dark Sky or Weather Forecast. To better assist you, could you please specify what information you are looking for:\n* Current temperature\n* Forecast for the next 24 hours\n* Any weather alerts\nI'll do my best to provide you with the most up-to-date information.",
+      "confidence": 8,
+      "history_hits": 1,
+      "thread_id": "ef45652b-1746-41e3-b0ea-85da10db6f53"
+    },
+    "thread_id": "ef45652b-1746-41e3-b0ea-85da10db6f53",
+    "status": "sent"
   }
 ]

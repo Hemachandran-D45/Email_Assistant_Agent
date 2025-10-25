@@ -21,26 +21,36 @@ class DraftGeneratorAgent:
         context = "\n\n".join([d.page_content for d in hits]) if hits else "No relevant history."
 
         prompt = f"""
-You are an AI email assistant. Draft a concise, polite, professional reply.
+You are a professional email assistant. Write a clear, polite, and concise reply.
 
-Incoming Email:
+Input:
 From: {email['sender']}
 Subject: {email['subject']}
 Body: {email['body']}
 
+Context: {context}
 Classification:
-- Category: {classification.get('category','normal')}
-- Tone: {classification.get('tone','neutral')}
 
-Relevant Past Emails (context):
-{context}
+Category: {classification.get('category', 'General')}
 
-Constraints:
-- Be concise (5-8 sentences).
-- If asking for info, use a short checklist.
-- Avoid generic fluff; be specific and helpful.
+Tone: {classification.get('tone', 'Neutral')}
 
-Reply (only the email body, no headers or signatures):
+Instructions:
+
+Keep it between 4–7 sentences.
+
+Maintain a professional, natural tone (not overly formal).
+
+Be action-oriented — respond or request what’s needed clearly.
+
+If you need information, include a short, bullet-style checklist.
+
+Avoid filler phrases (“hope you’re well,” “kindly note,” etc.).
+
+Write only the email body (no greetings or signatures).
+
+Output:
+Reply (only the email body):
 """
         resp = self.llm.invoke(prompt)
         reply = resp.content if hasattr(resp, "content") else str(resp)
